@@ -5,17 +5,18 @@ const props = defineProps<{
   loading?: boolean;
   link?: boolean;
   typography?: string;
+  disabled?: boolean;  
 }>();
 </script>
 
 <template>
   <component
-    :is="link ? RouterLink : 'button'"
+    :is="link ? RouterLink : 'button'"  
     @click="$emit('button-clicked', $event)"
+    :disabled="props.disabled"  
     tabindex="0"
-    class="group btn"
+    class="group btn bg-indigo-500 text-white disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
   >
-    <!--loading icon-->
     <svg
       v-if="props.loading"
       :class="{ 'animate-spin': props.loading }"
@@ -39,10 +40,8 @@ const props = defineProps<{
       ></path>
     </svg>
 
-    <!--loading text-->
     <template v-if="props.loading"> Processing </template>
 
-    <!--text-->
     <template v-else>
       <slot></slot>
     </template>

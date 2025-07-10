@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { ref } from "vue";
-
 import LabeledTextInput from "@src/components/ui/inputs/LabeledTextInput.vue";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/vue/24/outline";
 import IconButton from "@src/components/ui/inputs/IconButton.vue";
 
-defineEmits(["valueChanged"]);
+const emit = defineEmits(["update:modelValue"]);
 
 const props = defineProps<{
   id?: string;
   type?: string;
   label?: string;
-  value?: string;
+  modelValue?: string; 
   placeholder?: string;
   description?: string;
   bordered?: boolean;
@@ -26,11 +25,11 @@ const showPassword = ref(false);
     :id="props.id"
     :type="showPassword ? 'text' : 'password'"
     :label="props.label"
-    :value="props.value"
+    :modelValue="props.modelValue"  
     :placeholder="props.placeholder"
     :class="props.class"
     :bordered="props.bordered"
-    @value-changed="(value) => $emit('valueChanged', value)"
+    @update:modelValue="(value) => emit('update:modelValue', value)" 
   >
     <template v-slot:endAdornment>
       <IconButton

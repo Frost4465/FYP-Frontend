@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import cloudPatternPath from "@src/assets/images/clouds.png";
-import blurPath from "@src/assets/images/blur.png";
+import catBackground from "@src/assets/images/catto.png"
 </script>
 
 <template>
@@ -9,9 +8,9 @@ import blurPath from "@src/assets/images/blur.png";
   >
     <div
       class="w-full h-full px-7 flex items-center bg-no-repeat bg-center bg-cover rounded-[.75rem]"
-      :style="{ 'background-image': `url(${cloudPatternPath})` }"
+      :style="{ 'background-image': `url(${catBackground})` }"
     >
-      <div
+      <!-- <div
         class="px-9 py-15 rounded-[.3125rem] bg-cover bg-no-repeat"
         :style="{ 'background-image': `url(${blurPath})` }"
       >
@@ -22,8 +21,8 @@ import blurPath from "@src/assets/images/blur.png";
         <p class="body-3 text-white">
           Avian saves all the data in user’s devices and uses a cryptographic
           protocols to sync the data across multiple browsers and devices.
-        </p>
-      </div>
+        </p> 
+      </div> -->
     </div>
   </div>
 </template>
