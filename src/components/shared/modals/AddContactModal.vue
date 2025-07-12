@@ -1,46 +1,78 @@
 <script setup lang="ts">
-import Button from "@src/components/ui/inputs/Button.vue";
-import LabeledTextInput from "@src/components/ui/inputs/LabeledTextInput.vue";
+import { ref, onMounted, computed } from "vue";
 import Modal from "@src/components/ui/utils/Modal.vue";
+import SearchInput from "@src/components/ui/inputs/SearchInput.vue";
+import Button from "@src/components/ui/inputs/Button.vue";
 
 const props = defineProps<{
   openModal: boolean;
   closeModal: () => void;
 }>();
+
+const emit = defineEmits(["add-contact"]);
+
+const token = localStorage.getItem("token");
+const BASE_URL = import.meta.env.VITE_BASE_BASE_URL;
+const ADD_FRIEND_LIST = import.meta.env.VITE_BASE_ADD_FRIENDSLIST;
+const ADD_FRIEND_LIST_ENDPOINT = BASE_URL + ADD_FRIEND_LIST;
+
+const potentialUsers = ref<{ id: number; name: string }[]>([]); 
+const search = ref("");
+const loading = ref(false);
+
+onMounted(async () => {
+  loading.value = true; 
+  try {
+    const response = await fetch(ADD_FRIEND_LIST_ENDPOINT, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    potentialUsers.value = await response.json();
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    potentialUsers.value = [];
+  } finally {
+    loading.value = false; 
+  }
+});
+
+const filteredUsers = computed(() =>
+  potentialUsers.value.filter(u =>
+    u.name.toLowerCase().includes(search.value.toLowerCase()) 
+  )
+);
+
+function handleAdd(userId: number) {
+  emit("add-contact", userId); 
+}
 </script>
 
 <template>
-  <Modal :open="props.openModal" :closeModal="props.closeModal">
-    <template v-slot:content>
+  <Modal :open="props.openModal" :close-modal="props.closeModal">
+    <template #content>
       <div class="w-75 bg-white dark:bg-gray-800 rounded py-6">
-        <!--modal header-->
-        <div class="flex justify-between items-center px-5">
-          <p
-            id="modal-title"
-            class="heading-1 text-black/70 dark:text-white/70"
-            tabindex="0"
-          >
+        <div class="flex justify-between items-center px-5 mb-4">
+          <p class="heading-1 text-black/70 dark:text-white/70" tabindex="0">
             Add Contact
           </p>
-
-          <Button
-            class="outlined-danger ghost-text py-2 px-4"
-            @click="props.closeModal"
-          >
-            esc
-          </Button>
         </div>
 
-        <!--text input-->
-        <div class="px-5 pb-5 pt-6">
-          <LabeledTextInput type="text" placeholder="Email" />
+        <div class="px-5 pb-5">
+          <SearchInput v-model="search" placeholder="Search by username" />
         </div>
 
-        <!--submit button-->
-        <div class="px-5">
-          <Button class="contained-primary contained-text w-full py-4">
-            Add
-          </Button>
+        <div v-if="loading" class="px-5 pb-5">Loading...</div>
+
+        <div v-else class="px-5 max-h-60 overflow-y-auto">
+          <div v-for="user in filteredUsers" :key="user.id" class="flex items-center justify-between py-2 border-b border-gray-100">
+            <div>{{ user.name }}</div> 
+            <Button class="contained-primary py-1 px-3" @click="handleAdd(user.id)">
+              Add
+            </Button>
+          </div>
+
+          <div v-if="filteredUsers.length === 0" class="text-gray-400 py-6 text-center">
+            No users found.
+          </div>
         </div>
       </div>
     </template>

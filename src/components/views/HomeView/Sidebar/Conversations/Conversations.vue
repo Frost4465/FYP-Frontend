@@ -17,6 +17,7 @@ import FadeTransition from "@src/components/ui/transitions/FadeTransition.vue";
 import ArchivedButton from "@src/components/views/HomeView/Sidebar/Conversations/ArchivedButton.vue";
 import ConversationsList from "@src/components/views/HomeView/Sidebar/Conversations/ConversationsList.vue";
 import SidebarHeader from "@src/components/views/HomeView/Sidebar/SidebarHeader.vue";
+import axios from "axios";
 
 const store = useStore();
 
@@ -66,6 +67,27 @@ onMounted(() => {
   );
   if (conversation) openArchive.value = true;
 });
+
+const handleCreateChat = async (selectedUserIds) => {
+  try {
+    // Make your API call
+    const response = await axios.post("/api/chats", {
+      memberIds: selectedUserIds,
+      isGroup: selectedUserIds.length > 2,
+      // Optionally, groupName or groupIcon for group chat
+    });
+
+    // You can add the new chat to your conversations list here:
+    store.conversations.push(response.data);
+
+    // Optionally, set this as active chat, close modal
+    closeComposeModal();
+  } catch (error) {
+    // Handle error (show notification, etc)
+    console.error("Failed to create chat", error);
+  }
+};
+
 </script>
 
 <template>
@@ -141,6 +163,6 @@ onMounted(() => {
     </div>
 
     <!--compose modal-->
-    <ComposeModal :open="composeOpen" :close-modal="closeComposeModal" />
+    <ComposeModal :open="composeOpen" :close-modal="closeComposeModal" @create-chat="handleCreateChat"/>
   </div>
 </template>

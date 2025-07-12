@@ -24,7 +24,8 @@ const login = async () => {
       email: email.value,
       password: password.value,
     })
-    localStorage.setItem('token', response.data.token)
+    console.log(response)
+    localStorage.setItem('token', response.data)
 
     router.push('/chat/no-chat/')
   } catch (error) {

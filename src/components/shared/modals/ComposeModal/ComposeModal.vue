@@ -16,25 +16,20 @@ const props = defineProps<{
   closeModal: () => void;
 }>();
 
-// the p element containing the modal title
+const emit = defineEmits(["create-chat"]);
 const modalTitle: Ref<HTMLElement | null> = ref(null);
-
-// the name of the selected tab
 const activeTabName = ref("contacts");
+const activeTab = computed(() => activeTabName.value === "contacts" ? ContactsTab : GroupTab);
 
-// (event) switch between the contacts and group tabs
 const handleSwitchTab = (tabName: string) => {
   activeTabName.value = tabName;
 };
 
-// the active tab contacts or group.
-const activeTab = computed(() => {
-  if (activeTabName.value === "contacts") {
-    return ContactsTab;
-  } else {
-    return GroupTab;
-  }
-});
+function onSelectedUsers(selectedUserIds: string[]) {
+  emit("create-chat", selectedUserIds);
+  props.closeModal();
+}
+
 </script>
 
 <template>
@@ -78,7 +73,7 @@ const activeTab = computed(() => {
 
         <!--ActiveTab-->
         <FadeTransition>
-          <component :is="activeTab" />
+          <component :is="activeTab" @selected="onSelectedUsers"/>
         </FadeTransition>
       </div>
     </template>
