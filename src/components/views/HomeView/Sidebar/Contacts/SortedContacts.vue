@@ -14,7 +14,9 @@ import {
 import IconButton from "@src/components/ui/inputs/IconButton.vue";
 import Dropdown from "@src/components/ui/navigation/Dropdown/Dropdown.vue";
 import DropdownLink from "@src/components/ui/navigation/Dropdown/DropdownLink.vue";
+import axios from "axios";
 
+const emit = defineEmits(["contact-deleted"]);
 const props = defineProps<{
   contactGroups?: IContactGroup[];
   bottomEdge?: number;
@@ -22,6 +24,12 @@ const props = defineProps<{
 
 // the position of the dropdown menu.
 const dropdownMenuPosition = ref(["top-6", "right-0"]);
+
+const BASE_URL = import.meta.env.VITE_BASE_BASE_URL;
+const DELETE_FRIEND = import.meta.env.VITE_BASE_DELETE_FRIEND;
+const DELETE_FRIEND_ENDPOINT = BASE_URL + DELETE_FRIEND;
+const token = localStorage.getItem("token");
+
 
 // controls the states of contact dropdown menus
 const dropdownMenuStates: Ref<boolean[][] | undefined> = ref(
@@ -84,6 +92,37 @@ const handleClickOutside = (event: Event) => {
     handleCloseAllMenus();
   }
 };
+
+const handleDeleteContact = (contactId: number) => {
+  console.log(`Deleting contact with ID: ${contactId}`);
+  
+  if (props.contactGroups) {
+    const groupIndex = props.contactGroups.findIndex(group => 
+      group.contacts.some(contact => contact.id === contactId)
+    );
+    
+    if (groupIndex !== -1) {
+      const contactIndex = props.contactGroups[groupIndex].contacts.findIndex(contact => contact.id === contactId);
+      if (contactIndex !== -1) {
+        props.contactGroups[groupIndex].contacts.splice(contactIndex, 1);
+      }
+    }
+  }
+  axios
+    .delete(DELETE_FRIEND_ENDPOINT + contactId, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => {
+      console.log("Contact deleted:", response);
+      emit("contact-deleted");
+    })
+    .catch((error) => {
+      console.error("Error deleting contact:", error);
+    });
+}
+
 </script>
 
 <template>
@@ -96,10 +135,7 @@ const handleClickOutside = (event: Event) => {
     <!--contacts-->
     <div v-for="(contact, index) in group.contacts" :key="index">
       <div class="w-full p-5 flex justify-between items-center">
-        <button
-          class="transition-all duration-200 ease-out"
-          :aria-label="contact.userName"
-        >
+        <button class="transition-all duration-200 ease-out" :aria-label="contact.userName">
           <div class="flex-row">
             <!--contact name-->
             <p class="heading-2 text-black/70 dark:text-white/70">
@@ -111,44 +147,18 @@ const handleClickOutside = (event: Event) => {
         <!--dropdown menu-->
         <div class="relative">
           <!--dropdown menu button-->
-          <IconButton
-            :id="'open-contact-menu-' + index"
-            class="open-menu w-6 h-6"
-            @click="(event) => handleToggleDropdown(event, groupIndex, index)"
-            :aria-expanded="
-              (dropdownMenuStates as boolean[][])[groupIndex][index]
-            "
-            :aria-controls="'contact-menu-' + index"
-            title="toggle contact menu"
-            aria-label="toggle contact menu"
-          >
+          <IconButton :id="'open-contact-menu-' + index" class="open-menu w-6 h-6"
+            @click="(event) => handleToggleDropdown(event, groupIndex, index)" :aria-expanded="(dropdownMenuStates as boolean[][])[groupIndex][index]
+              " :aria-controls="'contact-menu-' + index" title="toggle contact menu" aria-label="toggle contact menu">
             <EllipsisVerticalIcon class="open-menu h-5 w-5" tabindex="0" />
           </IconButton>
 
-          <Dropdown
-            :id="'contact-menu-' + index"
-            :close-dropdown="handleCloseAllMenus"
-            :handle-click-outside="handleClickOutside"
-            :aria-labelledby="'open-contact-menu-' + index"
-            :show="(dropdownMenuStates as boolean[][])[groupIndex][index]"
-            :position="dropdownMenuPosition"
-          >
-            <button
-              class="dropdown-link dropdown-link-primary"
-              aria-label="Show profile information"
-              role="menuitem"
-            >
-              <InformationCircleIcon
-                class="h-5 w-5 mr-3 text-black opacity-60 dark:text-white dark:opacity-70"
-              />
-              Personal information
-            </button>
+          <Dropdown :id="'contact-menu-' + index" :close-dropdown="handleCloseAllMenus"
+            :handle-click-outside="handleClickOutside" :aria-labelledby="'open-contact-menu-' + index"
+            :show="(dropdownMenuStates as boolean[][])[groupIndex][index]" :position="dropdownMenuPosition">
 
-            <button
-              class="dropdown-link dropdown-link-danger"
-              aria-label="Delete contact"
-              role="menuitem"
-            >
+            <button class="dropdown-link dropdown-link-danger" aria-label="Delete contact" role="menuitem"
+              @click="handleDeleteContact(contact.id)">
               <TrashIcon class="h-5 w-5 mr-3" />
               Delete contact
             </button>

@@ -61,14 +61,11 @@ function groupContacts(contacts: { id: number; userName: string }[]) {
     if (!groups[firstLetter]) {
       groups[firstLetter] = { letter: firstLetter, contacts: [] };
     }
-
     groups[firstLetter].contacts.push(contact);
   });
 
   return Object.values(groups);
 }
-
-
 
 watch(searchText, () => {
   if (!searchText.value) {
@@ -86,6 +83,11 @@ watch(searchText, () => {
     })
     .filter((group) => group.contacts.length > 0);
 });
+
+const handleContactDeleted = () => {
+  console.log("Contact deleted, refreshing the contact list");
+  contactListing(); 
+};
 
 const handleAddContact = (userId: number) => {
   console.log(`Adding user with ID: ${userId}`);
@@ -127,7 +129,7 @@ const handleAddContact = (userId: number) => {
       style="overflow-x: visible; overflow-y: scroll">
       <MultipleLines v-if="loading" v-for="item in 5" :key="item" />
 
-      <SortedContacts v-else-if="filteredContactGroups.length > 0" :contactGroups="filteredContactGroups"
+      <SortedContacts v-else-if="filteredContactGroups.length > 0" :contactGroups="filteredContactGroups" @contact-deleted="handleContactDeleted"
         :bottom-edge="(contactContainer as HTMLElement)?.getBoundingClientRect().bottom" />
 
       <NoContacts v-else />

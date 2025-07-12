@@ -65,6 +65,7 @@ export interface IConversation {
   replyMessage?: IMessage;
   unread?: number;
   draftMessage: string;
+  test:string;
 }
 
 export interface IContactGroup {
