@@ -68,22 +68,15 @@ onMounted(() => {
   if (conversation) openArchive.value = true;
 });
 
-const handleCreateChat = async (selectedUserIds) => {
+const handleCreateChat = async (selectedUserIds:number) => {
+  closeComposeModal();
   try {
-    // Make your API call
     const response = await axios.post("/api/chats", {
       memberIds: selectedUserIds,
-      isGroup: selectedUserIds.length > 2,
-      // Optionally, groupName or groupIcon for group chat
+      isGroup: selectedUserIds > 2,
     });
-
-    // You can add the new chat to your conversations list here:
     store.conversations.push(response.data);
-
-    // Optionally, set this as active chat, close modal
-    closeComposeModal();
   } catch (error) {
-    // Handle error (show notification, etc)
     console.error("Failed to create chat", error);
   }
 };

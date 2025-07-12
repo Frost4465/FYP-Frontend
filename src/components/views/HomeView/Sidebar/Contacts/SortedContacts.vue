@@ -98,12 +98,12 @@ const handleClickOutside = (event: Event) => {
       <div class="w-full p-5 flex justify-between items-center">
         <button
           class="transition-all duration-200 ease-out"
-          :aria-label="getFullName(contact)"
+          :aria-label="contact.userName"
         >
           <div class="flex-row">
             <!--contact name-->
             <p class="heading-2 text-black/70 dark:text-white/70">
-              {{ getFullName(contact) }}
+              {{ contact.userName }}
             </p>
           </div>
         </button>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import Modal from "@src/components/ui/utils/Modal.vue";
 import SearchInput from "@src/components/ui/inputs/SearchInput.vue";
 import Button from "@src/components/ui/inputs/Button.vue";
@@ -16,11 +16,23 @@ const BASE_URL = import.meta.env.VITE_BASE_BASE_URL;
 const ADD_FRIEND_LIST = import.meta.env.VITE_BASE_ADD_FRIENDSLIST;
 const ADD_FRIEND_LIST_ENDPOINT = BASE_URL + ADD_FRIEND_LIST;
 
-const potentialUsers = ref<{ id: number; name: string }[]>([]); 
+const potentialUsers = ref<{ id: number; userName: string }[]>([]); 
 const search = ref("");
 const loading = ref(false);
+console.log(props.openModal);
+watch(
+  () => props.openModal,
+  async (newVal) => {
+    if (newVal) {
+      console.log("Modal opened, fetching users...");
+      await fetchPotentialUsers();
+    }
+  },
+  { immediate: true } 
+);
 
-onMounted(async () => {
+
+async function fetchPotentialUsers(){
   loading.value = true; 
   try {
     const response = await fetch(ADD_FRIEND_LIST_ENDPOINT, {
@@ -33,16 +45,17 @@ onMounted(async () => {
   } finally {
     loading.value = false; 
   }
-});
+};
 
 const filteredUsers = computed(() =>
   potentialUsers.value.filter(u =>
-    u.name.toLowerCase().includes(search.value.toLowerCase()) 
+    u.userName.toLowerCase().includes(search.value.toLowerCase()) 
   )
 );
 
 function handleAdd(userId: number) {
   emit("add-contact", userId); 
+  props.closeModal();
 }
 </script>
 
@@ -64,7 +77,7 @@ function handleAdd(userId: number) {
 
         <div v-else class="px-5 max-h-60 overflow-y-auto">
           <div v-for="user in filteredUsers" :key="user.id" class="flex items-center justify-between py-2 border-b border-gray-100">
-            <div>{{ user.name }}</div> 
+            <div>{{ user.userName }}</div> 
             <Button class="contained-primary py-1 px-3" @click="handleAdd(user.id)">
               Add
             </Button>

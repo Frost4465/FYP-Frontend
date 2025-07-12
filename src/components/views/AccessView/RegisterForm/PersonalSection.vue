@@ -7,12 +7,14 @@ const props = defineProps({
   email: String,
   firstName: String,
   lastName: String,
+  userName: String,
   warningMessage: String,
 });
 const emit = defineEmits([
   "update:email",
   "update:firstName",
   "update:lastName",
+  "update:userName",
   "active-section-change",
   "show-warning",
 ]);
@@ -40,6 +42,8 @@ const handleNext = () => {
     <div class="mb-5">
       <LabeledTextInput label="Email" placeholder="Enter your email" class="mb-5" :modelValue="email"
         @update:modelValue="(val: string) => emit('update:email', val)" />
+      <LabeledTextInput label="Username" placeholder="Enter your Username" class="mb-5" :modelValue="userName"
+        @update:modelValue="(val: string) => emit('update:userName', val)" />
       <LabeledTextInput label="First Name" placeholder="Enter your first name" class="mb-5" :modelValue="firstName"
         @update:modelValue="(val: string) => emit('update:firstName', val)" />
       <LabeledTextInput label="Last Name" placeholder="Enter your last name" class="mb-5" :modelValue="lastName"

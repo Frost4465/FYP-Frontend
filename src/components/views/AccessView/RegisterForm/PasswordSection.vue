@@ -9,6 +9,7 @@ const props = defineProps<{
   email: string,
   firstName: string,
   lastName: string,
+  userName: string,
   password: string;
   warningMessage?: string;
 }>();
@@ -32,7 +33,6 @@ const passwordsMatch = computed(() =>
 
 async function handleSignUp() {
   console.log("handleSignUp called");
-  console.log("TESTING -> ", REGISTER_ENDPOINT);
   if (!passwordsMatch.value) {
     emit("show-warning", "Passwords do not match.");
     return;
@@ -43,6 +43,7 @@ async function handleSignUp() {
       firstName: props.firstName,
       lastName: props.lastName,
       password: props.password,
+      userName: props.userName,
     });
     emit('fields-cleared');
     router.push('/access/sign-in/');

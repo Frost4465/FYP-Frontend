@@ -10,6 +10,7 @@ const email = ref('');
 const firstName = ref('');
 const lastName = ref('');
 const password = ref('')
+const userName = ref('');
 const warningMessage = ref('');
 const activeSectionName = ref('personal-section');
 const animation = ref('slide-left');
@@ -44,6 +45,7 @@ const clearFields = () => {
   firstName.value = '';
   lastName.value = '';
   password.value = '';
+  userName.value = '';
 };
 
 </script>
@@ -67,7 +69,7 @@ const clearFields = () => {
         @show-warning="showWarning" 
         @fields-cleared="clearFields"
         :is="ActiveSection"
-          v-model:email="email" v-model:firstName="firstName" v-model:lastName="lastName" v-model:password="password"
+          v-model:email="email" v-model:firstName="firstName" v-model:lastName="lastName" v-model:password="password" v-model:userName="userName"
           :warningMessage="warningMessage" />
       </SlideTransition>
 

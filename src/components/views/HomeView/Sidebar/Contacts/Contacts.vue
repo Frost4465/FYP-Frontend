@@ -20,30 +20,29 @@ const contactContainer: Ref<HTMLElement | null> = ref(null);
 const BASE_URL = import.meta.env.VITE_BASE_BASE_URL;
 const FRIENDLIST = import.meta.env.VITE_BASE_FRIEND_LIST;
 const FRIEND_ENDPOINT = BASE_URL + FRIENDLIST;
-const ADD_FRIEND_LIST = import.meta.env.VITE_BASE_ADD_FRIENDSLIST;
-const ADD_FRIEND_LIST_ENDPOINT = BASE_URL + ADD_FRIEND_LIST;
+const ADD_FRIEND = import.meta.env.VITE_BASE_ADD_FRIEND;
+const ADD_FRIEND_ENDPOINT = BASE_URL + ADD_FRIEND;
 const token = localStorage.getItem("token");
 const loading = ref(true);
 
-// Store the full list from API for filtering
 const fullContactGroups = ref<IContactGroup[]>([]);
 const filteredContactGroups = ref<IContactGroup[]>([]);
 
 async function contactListing() {
   loading.value = true;
-  console.log(token);
   try {
-    const response = await axios.get(
-      FRIEND_ENDPOINT,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
+    const response = await axios.get(FRIEND_ENDPOINT, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       }
-    );
-    fullContactGroups.value = response.data;
-    filteredContactGroups.value = response.data;
+    });
+
+    console.log(response.data);
+    const groupedContacts = groupContacts(response.data);
+    fullContactGroups.value = groupedContacts;
+    filteredContactGroups.value = groupedContacts;
   } catch (err) {
+    console.error("Error fetching contacts:", err);
     fullContactGroups.value = [];
     filteredContactGroups.value = [];
   } finally {
@@ -52,6 +51,24 @@ async function contactListing() {
 }
 
 onMounted(contactListing);
+
+function groupContacts(contacts: { id: number; userName: string }[]) {
+  const groups: { [key: string]: IContactGroup } = {};
+
+  contacts.forEach(contact => {
+    const firstLetter = contact.userName.charAt(0).toUpperCase();
+
+    if (!groups[firstLetter]) {
+      groups[firstLetter] = { letter: firstLetter, contacts: [] };
+    }
+
+    groups[firstLetter].contacts.push(contact);
+  });
+
+  return Object.values(groups);
+}
+
+
 
 watch(searchText, () => {
   if (!searchText.value) {
@@ -69,6 +86,25 @@ watch(searchText, () => {
     })
     .filter((group) => group.contacts.length > 0);
 });
+
+const handleAddContact = (userId: number) => {
+  console.log(`Adding user with ID: ${userId}`);
+  axios.post(
+    ADD_FRIEND_ENDPOINT + userId,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    }
+  )
+    .then(response => {
+      contactListing();
+    })
+    .catch(error => {
+      console.error("Error adding contact:", error);
+    });
+};
 </script>
 
 <template>
@@ -97,6 +133,7 @@ watch(searchText, () => {
       <NoContacts v-else />
     </div>
 
-    <AddContactModal :open-modal="openModal" :close-modal="() => (openModal = false)" @add-contact="contactListing" />
+    <AddContactModal v-if="openModal" :open-modal="openModal" :close-modal="() => (openModal = false)"
+      @add-contact="handleAddContact" />
   </div>
 </template>
