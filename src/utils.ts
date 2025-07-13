@@ -119,7 +119,7 @@ export const hasAttachments = (message: IMessage) => {
  */
 export const getActiveConversationId = () => {
   const route = useRoute();
-  return route.params.id ? Number(route.params.id) : undefined;
+  return route.params.id ? String(route.params.id) : undefined;
 };
 
 /**
@@ -128,8 +128,8 @@ export const getActiveConversationId = () => {
  * @returns A number indicating the index of the conversation.
  */
 export const getConversationIndex = (
-  conversationId: number
-): number | undefined => {
+  conversationId: string
+): string | undefined => {
   let conversationIndex;
   const store = useStore();
 

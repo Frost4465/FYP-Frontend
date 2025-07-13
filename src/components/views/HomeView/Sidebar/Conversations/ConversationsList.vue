@@ -11,8 +11,8 @@ const props = defineProps<{
   <div>
     <Conversation
       v-for="conversation in props.filteredConversations"
-      :conversation="conversation"
       :key="conversation.id"
+      :conversation="conversation"
       role="listitem"
     />
   </div>

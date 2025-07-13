@@ -42,26 +42,17 @@ export interface IRecording {
 
 export interface IMessage {
   id: number;
-  type?: string;
-  content?: string | IRecording;
-  date: string;
-  sender: IContact;
-  replyTo?: number;
-  previewData?: IPreviewData;
-  attachments?: IAttachment[];
-  state: string;
+  sender: string;
+  text: string;
+  timestamp: string;
 }
 
 export interface IConversation {
-  id: number;
+  id: string;
   type: string;
-  name?: string;
-  avatar?: string;
-  admins?: number[];
+  userName?: string;
   contacts: IContact[];
   messages: IMessage[];
-  pinnedMessage?: IMessage;
-  pinnedMessageHidden?: boolean;
   replyMessage?: IMessage;
   unread?: number;
   draftMessage: string;

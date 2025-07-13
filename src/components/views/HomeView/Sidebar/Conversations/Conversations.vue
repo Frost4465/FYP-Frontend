@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import type { IConversation } from "@src/types";
-import type { Ref } from "vue";
-
-import { onMounted, ref, watch } from "vue";
-
-import useStore from "@src/store/store";
+import { ref, onMounted, watch, Ref } from "vue";
+import axios from "axios";
 import { getActiveConversationId, getName } from "@src/utils";
-
 import { PencilSquareIcon } from "@heroicons/vue/24/outline";
 import ComposeModal from "@src/components/shared/modals/ComposeModal/ComposeModal.vue";
 import NoConversation from "@src/components/states/empty-states/NoConversation.vue";
@@ -14,148 +9,110 @@ import Circle2Lines from "@src/components/states/loading-states/Circle2Lines.vue
 import IconButton from "@src/components/ui/inputs/IconButton.vue";
 import SearchInput from "@src/components/ui/inputs/SearchInput.vue";
 import FadeTransition from "@src/components/ui/transitions/FadeTransition.vue";
-import ArchivedButton from "@src/components/views/HomeView/Sidebar/Conversations/ArchivedButton.vue";
 import ConversationsList from "@src/components/views/HomeView/Sidebar/Conversations/ConversationsList.vue";
 import SidebarHeader from "@src/components/views/HomeView/Sidebar/SidebarHeader.vue";
-import axios from "axios";
-
-const store = useStore();
 
 const keyword: Ref<string> = ref("");
-
 const composeOpen = ref(false);
-
-// determines whether the archive is open or not
 const openArchive = ref(false);
 
-// the filtered list of conversations.
-const filteredConversations: Ref<IConversation[]> = ref(store.conversations);
+// Store the filtered conversations (fetched from API)
+const filteredConversations: Ref<any[]> = ref([]);
+const loading = ref(true); // For showing loading state
+const token = localStorage.getItem("token");
+const BASE_URL = import.meta.env.VITE_BASE_BASE_URL;
+const CHAT_LIST = import.meta.env.VITE_BASE_CHAT_LIST;
+const CONVERSATIONS_ENDPOINT = BASE_URL + CHAT_LIST;
 
-// filter the list of conversation based on search text.
-watch([keyword, openArchive], () => {
-  if (openArchive.value) {
-    // search conversations
-    filteredConversations.value =
-      store.archivedConversations?.filter(
-        (conversation) =>
-          getName(conversation)
-            ?.toLowerCase()
-            .includes(keyword.value.toLowerCase()),
-      ) || [];
-  } else {
-    // search archived conversations
-    filteredConversations.value =
-      store.conversations?.filter(
-        (conversation) =>
-          getName(conversation)
-            ?.toLowerCase()
-            .includes(keyword.value.toLowerCase()),
-      ) || [];
+// Fetch conversations from API
+const fetchConversations = async () => {
+  loading.value = true;
+  try {
+    const response = await axios.get(CONVERSATIONS_ENDPOINT, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    filteredConversations.value = response.data.map((conversation: any) => ({
+      id: conversation.id,  
+      type: conversation.group ? "group" : "private",
+      userName: conversation.groupName,  
+      contacts: conversation.members.map((memberId: string) => ({
+        id: parseInt(memberId)
+      })),
+      messages: [], 
+      replyMessage: undefined,  
+      unread: 0,  
+      draftMessage: "",  
+    }));
+    console.log("TESTING ->", filteredConversations.value);
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+    filteredConversations.value = [];
+  } finally {
+    loading.value = false;
   }
+  console.log(filteredConversations);
+};
+
+watch([keyword], () => {
+  if (!keyword.value) {
+    return;
+  }
+  filteredConversations.value = filteredConversations.value.filter((conversation) =>
+    getName(conversation)?.toLowerCase().includes(keyword.value.toLowerCase())
+  );
 });
 
-// (event) close the compose modal.
+// Handle opening compose modal for new chats
 const closeComposeModal = () => {
   composeOpen.value = false;
 };
 
-// if the active conversation is in the archive
-// then open the archive
-onMounted(() => {
-  let conversation = store.archivedConversations.find(
-    (conversation) => conversation.id === getActiveConversationId(),
-  );
-  if (conversation) openArchive.value = true;
-});
-
-const handleCreateChat = async (selectedUserIds:number) => {
-  closeComposeModal();
-  try {
-    const response = await axios.post("/api/chats", {
-      memberIds: selectedUserIds,
-      isGroup: selectedUserIds > 2,
-    });
-    store.conversations.push(response.data);
-  } catch (error) {
-    console.error("Failed to create chat", error);
-  }
-};
+const onCreateChat = () => {
+fetchConversations(); 
+}
+onMounted(fetchConversations);
 
 </script>
 
 <template>
   <div>
     <SidebarHeader>
-      <!--title-->
       <template v-slot:title>Messages</template>
-
-      <!--side actions-->
       <template v-slot:actions>
-        <IconButton
-          class="ic-btn-ghost-primary w-7 h-7"
-          @click="composeOpen = true"
-          aria-label="compose conversation"
-          title="compose conversation"
-        >
+        <IconButton class="ic-btn-ghost-primary w-7 h-7" @click="composeOpen = true" aria-label="compose conversation"
+          title="compose conversation">
           <PencilSquareIcon class="w-[1.25rem] h-[1.25rem]" />
         </IconButton>
       </template>
     </SidebarHeader>
 
-    <!--search bar-->
     <div class="px-5 xs:pb-6 md:pb-5">
-      <SearchInput
-        @value-changed="
-          (value) => {
-            keyword = value;
-          }
-        "
-        :value="keyword"
-      />
+      <SearchInput @value-changed="(value) => keyword = value" :value="keyword" />
     </div>
 
-    <!--conversations-->
-    <div
-      role="list"
-      aria-label="conversations"
-      class="w-full h-full scroll-smooth scrollbar-hidden"
-      style="overflow-x: visible; overflow-y: scroll"
-    >
-      <Circle2Lines
-        v-if="store.status === 'loading' || store.delayLoading"
-        v-for="item in 6"
-      />
+    <div role="list" aria-label="conversations" class="w-full h-full scroll-smooth scrollbar-hidden"
+      style="overflow-x: visible; overflow-y: scroll">
+      <Circle2Lines v-if="loading" v-for="item in 6" :key="item" />
 
       <div v-else>
-        <ArchivedButton
-          v-if="store.archivedConversations.length > 0"
-          :open="openArchive"
-          @click="openArchive = !openArchive"
-        />
-
-        <div
-          v-if="
-            store.status === 'success' &&
-            !store.delayLoading &&
-            filteredConversations.length > 0
-          "
-        >
+        <!-- <ArchivedButton v-if="filteredConversations.length > 0" :open="openArchive"
+          @click="openArchive = !openArchive" /> -->
+        <div v-if="filteredConversations.length > 0">
           <FadeTransition>
-            <component
-              :is="ConversationsList"
-              :filtered-conversations="filteredConversations"
-              :key="openArchive ? 'archive' : 'active'"
-            />
+            <component :is="ConversationsList" :filtered-conversations="filteredConversations" />
           </FadeTransition>
         </div>
 
         <div v-else>
-          <NoConversation v-if="store.archivedConversations.length === 0" />
+          <NoConversation v-if="filteredConversations.length === 0" />
         </div>
       </div>
     </div>
 
     <!--compose modal-->
-    <ComposeModal :open="composeOpen" :close-modal="closeComposeModal" @create-chat="handleCreateChat"/>
+    <ComposeModal :open="composeOpen" :close-modal="closeComposeModal" @create-chat="onCreateChat" />
   </div>
 </template>

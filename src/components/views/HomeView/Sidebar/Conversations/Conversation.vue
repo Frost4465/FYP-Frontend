@@ -61,22 +61,29 @@ const handleSelectConversation = () => {
 };
 
 // last message in conversation to display
-const lastMessage = computed(
-  () => props.conversation.messages[props.conversation.messages.length - 1],
-);
+const lastMessage = computed(() => {
+  return props.conversation.messages.length > 0
+    ? props.conversation.messages[props.conversation.messages.length - 1]
+    : null; // Return null if no messages are available
+});
 
 // (event) remove the unread indicator when opening the conversation
 const handleRemoveUnread = () => {
   let index = getConversationIndex(props.conversation.id);
-  if (index !== undefined) {
-    store.conversations[index].unread = 0;
+  if (index !== undefined && typeof index === 'number') {
+    store.conversations[index].unread = 0; // This is safe now
   }
 };
 
 // (computed property) determines if this conversation is active.
 const isActive = computed(
-  () => getActiveConversationId() === props.conversation.id,
+  () => getActiveConversationId() === props.conversation.id
 );
+
+const conversationName = computed(() => {
+return props.conversation.userName;
+});
+
 </script>
 
 <template>
@@ -111,13 +118,13 @@ const isActive = computed(
           <div class="flex items-start">
             <div class="grow mb-3 text-start">
               <p class="heading-2 text-black/70 dark:text-white/70">
-                {{ getName(props.conversation) }}
+                {{ conversationName }}
               </p>
             </div>
 
             <!--last message date-->
             <p class="body-1 text-black/70 dark:text-white/70">
-              {{ lastMessage?.date }}
+              {{ lastMessage?.timestamp ? new Date(lastMessage.timestamp).toLocaleString() : '' }}
             </p>
           </div>
         </div>
@@ -136,10 +143,8 @@ const isActive = computed(
             </p>
 
             <!--recording name-->
-            <p
-              v-else-if="
-                lastMessage.type === 'recording' && lastMessage.content
-              "
+            <!-- <p
+              v-else-if="lastMessage?.type === 'recording' && lastMessage.content"
               class="body-2 text-black/70 dark:text-white/70 flex justify-start items-center"
             >
               <MicrophoneIcon
@@ -150,10 +155,10 @@ const isActive = computed(
                 Recording
                 {{ (lastMessage.content as IRecording).duration }}
               </span>
-            </p>
+            </p> -->
 
             <!--attachments title-->
-            <p
+            <!-- <p
               v-else-if="hasAttachments(lastMessage)"
               class="body-2 text-black/70 dark:text-white/70 flex justify-start items-center"
               :class="{ 'text-indigo-400': props.conversation.unread }"
@@ -161,7 +166,7 @@ const isActive = computed(
               <span :class="{ 'text-indigo-400': props.conversation.unread }">
                 {{ (lastMessage?.attachments as IAttachment[])[0].name }}
               </span>
-            </p>
+            </p> -->
 
             <!--last message content -->
             <p
@@ -170,7 +175,7 @@ const isActive = computed(
               :class="{ 'text-indigo-400': props.conversation.unread }"
             >
               <span :class="{ 'text-indigo-400': props.conversation.unread }">
-                {{ shorten(lastMessage) }}
+                {{ shorten(lastMessage == null ? "" : lastMessage) }}
               </span>
             </p>
           </div>
@@ -187,48 +192,5 @@ const isActive = computed(
         </div>
       </div>
     </button>
-
-    <!--custom context menu-->
-    <Dropdown
-      :close-dropdown="() => (showContextMenu = false)"
-      :show="showContextMenu"
-      :handle-close="handleCloseContextMenu"
-      :handle-click-outside="handleCloseContextMenu"
-      :coordinates="{
-        left: contextMenuCoordinations?.x + 'px',
-        top: contextMenuCoordinations?.y + 'px',
-      }"
-      :position="['top-0']"
-    >
-      <button
-        class="dropdown-link dropdown-link-primary"
-        aria-label="Show conversation information"
-        role="menuitem"
-        @click="handleCloseContextMenu"
-      >
-        <InformationCircleIcon class="h-5 w-5 mr-3" />
-        Conversation info
-      </button>
-
-      <button
-        class="dropdown-link dropdown-link-primary"
-        aria-label="Add conversation to archive"
-        role="menuitem"
-        @click="handleCloseContextMenu"
-      >
-        <ArchiveBoxArrowDownIcon class="h-5 w-5 mr-3" />
-        Archive conversation
-      </button>
-
-      <button
-        class="dropdown-link dropdown-link-danger"
-        aria-label="Delete the conversation"
-        role="menuitem"
-        @click="handleCloseContextMenu"
-      >
-        <TrashIcon class="h-5 w-5 mr-3" />
-        Delete conversation
-      </button>
-    </Dropdown>
   </div>
 </template>
