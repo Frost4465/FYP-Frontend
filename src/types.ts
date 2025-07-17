@@ -58,14 +58,15 @@ export interface IConversation {
   draftMessage: string;
 }
 
-export interface CurrentConversation {
+export interface MessageVo  {
   id: string;
-  members: number[];
-  groupName: string;
-  text: string;
+  chatId: string;
   sender: string;
+  text: string;
+  attachments: string[];
   timestamp: string;
-  group: boolean;
+  status: string;
+  replyTo: string | null;
 }
 
 export interface IContactGroup {

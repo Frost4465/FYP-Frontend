@@ -33,7 +33,7 @@ const handleInput = (event: any) => {
 
 <template>
   <textarea
-    name="props.name"
+    :name="props.name"
     :id="props.id"
     class="text-input"
     :class="[props.bordered ? 'bordered-input' : 'ringed-input']"
@@ -41,7 +41,5 @@ const handleInput = (event: any) => {
     :value="props.value"
     :placeholder="props.placeholder"
     ref="textarea"
-  >
-  {{ props.value }}
-  </textarea>
+  />
 </template>
