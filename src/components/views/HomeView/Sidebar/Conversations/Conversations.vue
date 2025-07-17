@@ -14,17 +14,14 @@ import SidebarHeader from "@src/components/views/HomeView/Sidebar/SidebarHeader.
 
 const keyword: Ref<string> = ref("");
 const composeOpen = ref(false);
-const openArchive = ref(false);
 
-// Store the filtered conversations (fetched from API)
 const filteredConversations: Ref<any[]> = ref([]);
-const loading = ref(true); // For showing loading state
+const loading = ref(true); 
 const token = localStorage.getItem("token");
 const BASE_URL = import.meta.env.VITE_BASE_BASE_URL;
 const CHAT_LIST = import.meta.env.VITE_BASE_CHAT_LIST;
 const CONVERSATIONS_ENDPOINT = BASE_URL + CHAT_LIST;
 
-// Fetch conversations from API
 const fetchConversations = async () => {
   loading.value = true;
   try {
@@ -98,11 +95,9 @@ onMounted(fetchConversations);
       <Circle2Lines v-if="loading" v-for="item in 6" :key="item" />
 
       <div v-else>
-        <!-- <ArchivedButton v-if="filteredConversations.length > 0" :open="openArchive"
-          @click="openArchive = !openArchive" /> -->
         <div v-if="filteredConversations.length > 0">
           <FadeTransition>
-            <component :is="ConversationsList" :filtered-conversations="filteredConversations" />
+            <component :is="ConversationsList" :filtered-conversations="filteredConversations" :key="filteredConversations.map(c => c.id).join(',')" />
           </FadeTransition>
         </div>
 

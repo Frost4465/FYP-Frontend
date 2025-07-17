@@ -3,7 +3,7 @@ import type { IContact, IConversation } from "@src/types";
 
 import { computed, ref } from "vue";
 
-import { getAvatar, getName, getOddContact } from "@src/utils";
+import { getName } from "@src/utils";
 
 import {
   ArrowLeftOnRectangleIcon,
@@ -17,7 +17,6 @@ import {
 } from "@heroicons/vue/24/outline";
 import { ArrowUturnLeftIcon } from "@heroicons/vue/24/solid";
 import IconAndText from "@src/components/shared/blocks/IconAndText.vue";
-import ImageViewer from "@src/components/shared/modals/ConversationInfoModal/ConversationInfoTab/ImageViewer.vue";
 import Button from "@src/components/ui/inputs/Button.vue";
 import IconButton from "@src/components/ui/inputs/IconButton.vue";
 
@@ -30,11 +29,11 @@ const props = defineProps<{
 const openImageViewer = ref(false);
 
 const imageUrl = computed(() => {
-  if (props.contact) {
-    return props.contact.avatar;
-  } else {
-    return getAvatar(props.conversation);
-  }
+  // if (props.contact) {
+  //   return props.contact.avatar;
+  // } else {
+  //   return getAvatar(props.conversation);
+  // }
 });
 </script>
 
@@ -91,12 +90,12 @@ const imageUrl = computed(() => {
             class="outline-none"
             aria-label="view avatar"
           >
-            <div
+            <!-- <div
               :style="{
                 backgroundImage: `url(${getAvatar(props.conversation)})`,
               }"
               class="w-9.5 h-9.5 rounded-full bg-cover bg-center"
-            ></div>
+            ></div> -->
           </button>
         </div>
 
@@ -148,10 +147,10 @@ const imageUrl = computed(() => {
         v-if="conversation.type === 'couple' || props.contact"
         class="flex px-5 pb-5 items-center"
       >
-        <IconAndText
+        <!-- <IconAndText
           :icon="AtSymbolIcon"
           :title="getOddContact(props.conversation)?.email"
-        />
+        /> -->
       </div>
 
       <!--(group) members-->
@@ -227,10 +226,10 @@ const imageUrl = computed(() => {
     </div>
 
     <!--image viewer-->
-    <ImageViewer
+    <!-- <ImageViewer
       :image-url="imageUrl"
       :open="openImageViewer"
       :close-image="() => (openImageViewer = false)"
-    />
+    /> -->
   </div>
 </template>

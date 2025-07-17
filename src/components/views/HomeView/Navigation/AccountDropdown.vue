@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
+import { ref, nextTick } from "vue";
 import useStore from "@src/store/store";
-
 import {
   ArrowLeftOnRectangleIcon,
   ArrowPathIcon,
   InformationCircleIcon,
 } from "@heroicons/vue/24/outline";
 import Dropdown from "@src/components/ui/navigation/Dropdown/Dropdown.vue";
-import DropdownLink from "@src/components/ui/navigation/Dropdown/DropdownLink.vue";
-import { RouterLink } from "vue-router";
 
+const router = useRouter();
 const props = defineProps<{
   showDropdown: boolean;
   handleCloseDropdown: () => void;
@@ -19,7 +19,18 @@ const props = defineProps<{
 
 const store = useStore();
 
-// (event) close dropdown menu when clicking outside
+const handleLogout = async () => {
+  props.handleCloseDropdown();
+  await nextTick(); // Wait for dropdown to be removed from DOM
+  router.push("/access/sign-in/");
+};
+
+const handlePasswordChange = async () => {
+  props.handleCloseDropdown();
+  await nextTick();
+  router.push("/reset/");
+};
+
 const handleCloseOnClickOutside = (event: Event) => {
   if (
     !["user-avatar", "profile-menu-button"].includes(
@@ -71,39 +82,25 @@ const handleCloseOnClickOutside = (event: Event) => {
     >
       <button
         class="dropdown-link dropdown-link-primary"
-        aria-label="Show profile information"
-        role="menuitem"
-        @click="props.handleCloseDropdown"
-      >
-        <InformationCircleIcon
-          class="h-5 w-5 mr-3 text-black opacity-60 dark:text-white dark:opacity-70"
-        />
-        Profile Information
-      </button>
-
-      <RouterLink
-        to="/reset/"
-        class="dropdown-link dropdown-link-primary"
         aria-label="change password"
         role="menuitem"
-        @click="props.handleCloseDropdown"
+        @click="handlePasswordChange"
       >
         <ArrowPathIcon
           class="h-5 w-5 mr-3 text-black opacity-60 dark:text-white dark:opacity-70"
         />
         Password Change
-      </RouterLink>
+      </button>
 
-      <RouterLink
-        to="/access/sign-in/"
+      <button
         class="dropdown-link dropdown-link-danger"
         aria-label="logout"
         role="menuitem"
-        @click.prevent="props.handleCloseDropdown"
+        @click="handleLogout"
       >
         <ArrowLeftOnRectangleIcon class="h-5 w-5 mr-3" />
         Logout
-      </RouterLink>
+      </button>
     </Dropdown>
   </div>
 </template>

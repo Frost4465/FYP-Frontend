@@ -1,38 +1,24 @@
 <script setup lang="ts">
-import type { IAttachment, IConversation, IRecording } from "@src/types";
+import type { IConversation } from "@src/types";
 import type { Ref } from "vue";
-import { computed, ref } from "vue";
+import { computed, ref, onBeforeUnmount } from "vue";
+import { useRoute } from "vue-router"; 
 
-import useStore from "@src/store/store";
 import {
   getActiveConversationId,
-  getAvatar,
   getConversationIndex,
   getName,
-  hasAttachments,
   shorten,
 } from "@src/utils";
 import router from "@src/router";
-
-import {
-  ArchiveBoxArrowDownIcon,
-  InformationCircleIcon,
-  MicrophoneIcon,
-  TrashIcon,
-} from "@heroicons/vue/24/outline";
-import Dropdown from "@src/components/ui/navigation/Dropdown/Dropdown.vue";
-import DropdownLink from "@src/components/ui/navigation/Dropdown/DropdownLink.vue";
 
 const props = defineProps<{
   conversation: IConversation;
 }>();
 
-const store = useStore();
-
 const showContextMenu = ref(false);
-
-const contextMenuCoordinations: Ref<{ x: number; y: number } | undefined> =
-  ref();
+const contextMenuCoordinations: Ref<{ x: number; y: number } | undefined> = ref();
+const isActiveConversation = computed(() => props.conversation.id === activeConversationId.value);
 
 // open context menu.
 const handleShowContextMenu = (event: any) => {
@@ -48,6 +34,10 @@ const handleShowContextMenu = (event: any) => {
         : event.pageY,
   };
 };
+
+onBeforeUnmount(() => {
+  showContextMenu.value = false;
+});
 
 // (event) closes the context menu
 const handleCloseContextMenu = () => {
@@ -71,28 +61,25 @@ const lastMessage = computed(() => {
 const handleRemoveUnread = () => {
   let index = getConversationIndex(props.conversation.id);
   if (index !== undefined && typeof index === 'number') {
-    store.conversations[index].unread = 0; // This is safe now
   }
 };
 
 // (computed property) determines if this conversation is active.
-const isActive = computed(
-  () => getActiveConversationId() === props.conversation.id
-);
+const route = useRoute(); // <-- ADD THIS
+const activeConversationId = computed(() => route.params.id as string | undefined);
+
+const isActive = computed(() => props.conversation.id === activeConversationId.value);
 
 const conversationName = computed(() => {
-return props.conversation.userName;
+  return props.conversation.userName;
 });
-
 </script>
+
 
 <template>
   <div class="select-none">
-    <button
-      :aria-label="'conversation with' + getName(props.conversation)"
-      tabindex="0"
-      @contextmenu.prevent="handleShowContextMenu"
-      @click="
+    <button :aria-label="'conversation with' + getName(props.conversation)" tabindex="0"
+      @contextmenu.prevent="handleShowContextMenu" @click="
         () => {
           handleRemoveUnread();
           handleSelectConversation();
@@ -102,14 +89,11 @@ return props.conversation.userName;
       :class="{
         'md:bg-indigo-50': isActive,
         'md:dark:bg-gray-600': isActive,
-      }"
-    >
+      }">
       <!--profile image-->
       <div class="mr-4">
-        <div
-          :style="{ backgroundImage: `url(${getAvatar(props.conversation)})` }"
-          class="w-7 h-7 rounded-full bg-cover bg-center"
-        ></div>
+        <!-- <div :style="{ backgroundImage: `url(${getAvatar(props.conversation)})` }"
+          class="w-7 h-7 rounded-full bg-cover bg-center"></div> -->
       </div>
 
       <div class="w-full flex flex-col">
@@ -132,48 +116,14 @@ return props.conversation.userName;
         <div class="flex justify-between">
           <div>
             <!--draft Message-->
-            <p
-              v-if="
-                props.conversation.draftMessage &&
-                props.conversation.id !== getActiveConversationId()
-              "
-              class="body-2 flex justify-start items-center text-red-400"
-            >
+            <p v-if="
+              props.conversation.draftMessage &&
+              props.conversation.id !== getActiveConversationId()
+            " class="body-2 flex justify-start items-center text-red-400">
               draft: {{ shorten(props.conversation.draftMessage) }}
             </p>
-
-            <!--recording name-->
-            <!-- <p
-              v-else-if="lastMessage?.type === 'recording' && lastMessage.content"
-              class="body-2 text-black/70 dark:text-white/70 flex justify-start items-center"
-            >
-              <MicrophoneIcon
-                class="w-4 h-4 mr-2 text-black opacity-60 dark:text-white dark:opacity-70"
-                :class="{ 'text-indigo-400': props.conversation.unread }"
-              />
-              <span :class="{ 'text-indigo-400': props.conversation.unread }">
-                Recording
-                {{ (lastMessage.content as IRecording).duration }}
-              </span>
-            </p> -->
-
-            <!--attachments title-->
-            <!-- <p
-              v-else-if="hasAttachments(lastMessage)"
-              class="body-2 text-black/70 dark:text-white/70 flex justify-start items-center"
-              :class="{ 'text-indigo-400': props.conversation.unread }"
-            >
-              <span :class="{ 'text-indigo-400': props.conversation.unread }">
-                {{ (lastMessage?.attachments as IAttachment[])[0].name }}
-              </span>
-            </p> -->
-
-            <!--last message content -->
-            <p
-              v-else
-              class="body-2 text-black/70 dark:text-white/70 flex justify-start items-center"
-              :class="{ 'text-indigo-400': props.conversation.unread }"
-            >
+            <p v-else class="body-2 text-black/70 dark:text-white/70 flex justify-start items-center"
+              :class="{ 'text-indigo-400': props.conversation.unread }">
               <span :class="{ 'text-indigo-400': props.conversation.unread }">
                 {{ shorten(lastMessage == null ? "" : lastMessage) }}
               </span>
@@ -181,9 +131,7 @@ return props.conversation.userName;
           </div>
 
           <div v-if="props.conversation.unread">
-            <div
-              class="w-4.5 h-4.5 flex justify-center items-center rounded-[50%] bg-indigo-300"
-            >
+            <div class="w-4.5 h-4.5 flex justify-center items-center rounded-[50%] bg-indigo-300">
               <p class="body-1 text-white">
                 {{ props.conversation.unread }}
               </p>

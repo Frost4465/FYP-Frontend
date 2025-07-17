@@ -91,9 +91,9 @@ const handleDoubleClick = (contactId: number, userName: string) => {
 const handleCreateChat = async (selectedUserIds: number[], userName: string) => {
   try {
     const response = await axios.post(CREATE_CHAT_ENDPOINT, {
-        memberIds: selectedUserIds,
-        isGroup: selectedUserIds.length > 1,
-        groupName: userName,
+      memberIds: selectedUserIds,
+      isGroup: selectedUserIds.length > 1,
+      groupName: userName,
     }, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
@@ -101,7 +101,7 @@ const handleCreateChat = async (selectedUserIds: number[], userName: string) => 
   } catch (error) {
     console.error("Failed to create chat", error);
   } finally {
-     props.closeModal();
+    props.closeModal();
   }
 };
 </script>
@@ -128,12 +128,15 @@ const handleCreateChat = async (selectedUserIds: number[], userName: string) => 
         <FadeTransition>
           <div v-if="loading" class="px-5 py-2">Loading...</div>
           <div v-else>
-
             <div v-if="activeTabName === 'contacts'" class="px-7">
               <div v-for="contact in contacts" :key="contact.id"
                 class="flex items-center justify-between py-2 border-b border-gray-200"
                 @dblclick="handleDoubleClick(contact.id, contact.userName)" style="padding-bottom: 16px;">
                 <span class="text-gray-800 dark:text-white">{{ contact.userName }}</span>
+              </div>
+              <!-- Add 'No users found' message here -->
+              <div v-if="contacts.length === 0" class="text-gray-400 py-6 text-center">
+                No users found.
               </div>
             </div>
 
@@ -146,6 +149,10 @@ const handleCreateChat = async (selectedUserIds: number[], userName: string) => 
                   @click="handleSelectContact(contact.id, contact.userName)">
                   Select
                 </Button>
+              </div>
+              <!-- Add 'No users found' message here as well -->
+              <div v-if="contacts.length === 0" class="text-gray-400 py-6 text-center">
+                No users found.
               </div>
             </div>
           </div>

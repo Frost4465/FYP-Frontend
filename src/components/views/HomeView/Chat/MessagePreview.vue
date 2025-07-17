@@ -2,14 +2,13 @@
 import type { IAttachment, IMessage } from "@src/types";
 
 import useStore from "@src/store/store";
-import { getFullName, hasAttachments, shorten } from "@src/utils";
+import { getFullName, shorten } from "@src/utils";
 
 const props = defineProps<{
   message: IMessage;
   self?: boolean;
 }>();
 
-const store = useStore();
 </script>
 
 <template>
@@ -19,7 +18,7 @@ const store = useStore();
     class="border-l-2 pl-3 cursor-pointer outline-none duration-200"
     :class="['border-gray-900/50', 'dark:border-white/50']"
     tabindex="0"
-    :aria-label="'reply to: ' + getFullName(props.message.sender)"
+    :aria-label="'reply to: ' + props.message.sender"
   >
     <!--name-->
     <p
@@ -40,26 +39,26 @@ const store = useStore();
 
     <!--content-->
     <p
-      v-if="props.message.type !== 'recording' && props.message.content"
+      v-if="props.message.text !== 'recording' && props.message.text"
       class="body-2 text-black opacity-50 dark:text-white dark:opacity-70"
     >
       {{ shorten(props.message, 60) }}
     </p>
 
     <!--attachments title-->
-    <p
+    <!-- <p
       v-else-if="hasAttachments(props.message)"
       class="body-2 text-black opacity-50 dark:text-white dark:opacity-70"
     >
       {{ (props.message?.attachments as IAttachment[])[0].name }}
-    </p>
+    </p> -->
 
     <!--recording title-->
-    <p
+    <!-- <p
       v-else-if="props.message.type === 'recording'"
       class="body-2 text-black opacity-50 dark:text-white dark:opacity-70"
     >
       recording 23s
-    </p>
+    </p> -->
   </div>
 </template>

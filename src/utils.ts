@@ -1,4 +1,5 @@
 import useStore from "@src/store/store";
+import { CurrentConversation} from "@src/types";
 import type {
   ICall,
   IContact,
@@ -14,11 +15,7 @@ import { useRoute } from "vue-router";
  * @returns A string the combines the first and last names.
  */
 export const getFullName = (contact: IContact, hyphen?: boolean) => {
-  if (hyphen) {
-    return contact.firstName + "-" + contact.lastName;
-  } else {
-    return contact.firstName + " " + contact.lastName;
-  }
+    return contact.userName;
 };
 
 /**
@@ -26,12 +23,12 @@ export const getFullName = (contact: IContact, hyphen?: boolean) => {
  * @param conversation
  * @returns A contact object representing the other user in the conversation.
  */
-export const getOddContact = (conversation: IConversation) => {
+export const getOddContact = (conversation: CurrentConversation) => {
   const store = useStore();
 
   let oddContact;
 
-  for (let contact of conversation.contacts) {
+  for (let contact of conversation.group) {
     if (store.user && contact.id !== store.user.id) {
       oddContact = contact;
     }
@@ -45,14 +42,14 @@ export const getOddContact = (conversation: IConversation) => {
  * @param conversation
  * @returns A string representing the url to the avatar image
  */
-export const getAvatar = (conversation: IConversation) => {
-  if (["group", "broadcast"].includes(conversation.type)) {
-    return conversation?.avatar;
-  } else {
-    let oddContact = getOddContact(conversation);
-    return oddContact?.avatar;
-  }
-};
+// export const getAvatar = (conversation: IConversation) => {
+//   if (["group", "broadcast"].includes(conversation.type)) {
+//     return conversation?.avatar;
+//   } else {
+//     let oddContact = getOddContact(conversation);
+//     return oddContact?.avatar;
+//   }
+// };
 
 /**
  * get name based on conversation type.
@@ -60,18 +57,7 @@ export const getAvatar = (conversation: IConversation) => {
  * @returns String
  */
 export const getName = (conversation: IConversation , hyphen?: boolean) => {
-  if (["group", "broadcast"].includes(conversation.type)) {
-    if (hyphen) {
-      return (conversation.name as string).split(" ").join("-");
-    } else {
-      return conversation.name;
-    }
-  } else {
-    let oddContact = getOddContact(conversation);
-    if (oddContact) {
-      return getFullName(oddContact, hyphen);
-    }
-  }
+    return conversation.userName;
 };
 
 /**
@@ -87,7 +73,7 @@ export const shorten = (message: IMessage | string, maxLength: number = 23) => {
   if (typeof message === "string") {
     text = message;
   } else {
-    text = message.content;
+    text = message.text;
   }
 
   if (text && typeof text === "string") {
@@ -109,10 +95,10 @@ export const shorten = (message: IMessage | string, maxLength: number = 23) => {
  * @param message
  * @returns A boolean indicating whether the message has attachments
  */
-export const hasAttachments = (message: IMessage) => {
-  let attachments = message.attachments;
-  return attachments && attachments.length > 0;
-};
+// export const hasAttachments = (message: IMessage) => {
+//   let attachments = message.attachments;
+//   return attachments && attachments.length > 0;
+// };
 
 /**
  * extract the id of the active conversaiton from the url

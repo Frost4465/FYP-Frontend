@@ -4,7 +4,7 @@ import type { IAttachment, IConversation } from "@src/types";
 
 import { computed, inject, onMounted, onUnmounted, ref, watch } from "vue";
 
-import { hasAttachments } from "@src/utils";
+// import { hasAttachments } from "@src/utils";
 import { useFocusTrap } from "@vueuse/integrations/useFocusTrap";
 import VideoPlayer from "@src/components/ui/data-display/VideoPlayer.vue";
 import IconButton from "@src/components/ui/inputs/IconButton.vue";
@@ -33,43 +33,43 @@ const currentIndex = ref(0);
 const moved = ref(false);
 
 // all the attachment in the conversation or an empty array
-const attachments = computed(() => {
-  let attachments = [];
+// const attachments = computed(() => {
+//   // let attachments = [];
 
-  if (conversation) {
-    for (let message of conversation.messages) {
-      if (message.attachments && hasAttachments(message)) {
-        for (let attachment of message.attachments) {
-          if (["video", "image"].includes(attachment.type)) {
-            attachments.push(attachment);
-          }
-        }
-      }
-    }
-  }
+//   if (conversation) {
+//     for (let message of conversation.messages) {
+//       // if (message.attachments && hasAttachments(message)) {
+//       //   for (let attachment of message.attachments) {
+//       //     if (["video", "image"].includes(attachment.type)) {
+//       //       attachments.push(attachment);
+//       //     }
+//       //   }
+//       // }
+//     }
+//   }
 
-  return attachments;
-});
+//   // return attachments;
+// });
 
 // the index of the attachment we start from
 const startingIndex = computed(() => {
   let startingIndex: number | undefined;
 
-  attachments.value.forEach((value, index) => {
-    if (value.id === props.startingId) {
-      startingIndex = index;
-    }
-  });
+  // attachments.value.forEach((value, index) => {
+  //   if (value.id === props.startingId) {
+  //     startingIndex = index;
+  //   }
+  // });
 
   return startingIndex;
 });
 
 // the selected attachment
-const selectedAttachment = computed(() => {
-  return attachments.value[
-    moved ? (currentIndex.value as number) : (startingIndex.value as number)
-  ];
-});
+// const selectedAttachment = computed(() => {
+//   return attachments.value[
+//     moved ? (currentIndex.value as number) : (startingIndex.value as number)
+//   ];
+// });
 
 // the value of the css visibility property
 const imageInvisibility = ref(true);
@@ -82,36 +82,36 @@ const handleCloseCarousel = () => {
 };
 
 // check if there is a next attachment.
-const isThereANext = () => {
-  let length = (attachments.value as IAttachment[])?.length;
-  return length > 0 && !(currentIndex.value + 1 >= length);
-};
+// const isThereANext = () => {
+//   let length = (attachments.value as IAttachment[])?.length;
+//   return length > 0 && !(currentIndex.value + 1 >= length);
+// };
 
 // check if there is a previous attachment.
-const isThereAPrevious = () => {
-  let length = (attachments.value as IAttachment[])?.length;
-  return length > 0 && !(currentIndex.value <= 0);
-};
+// const isThereAPrevious = () => {
+//   let length = (attachments.value as IAttachment[])?.length;
+//   return length > 0 && !(currentIndex.value <= 0);
+// };
 
 // (event) increase selectedIndex if there is a next attachment.
-const handleMoveToNextItem = () => {
-  if (isThereANext()) {
-    zoom.value = 1;
-    moved.value = true;
-    (currentIndex.value as number)++;
-    imageInvisibility.value = true;
-  }
-};
+// const handleMoveToNextItem = () => {
+//   if (isThereANext()) {
+//     zoom.value = 1;
+//     moved.value = true;
+//     (currentIndex.value as number)++;
+//     imageInvisibility.value = true;
+//   }
+// };
 
 // (event) increase selectedIndex if there is a previous attachment.
-const handleMoveToPreviousItem = () => {
-  if (isThereAPrevious()) {
-    zoom.value = 1;
-    moved.value = true;
-    (currentIndex.value as number)--;
-    imageInvisibility.value = true;
-  }
-};
+// const handleMoveToPreviousItem = () => {
+//   if (isThereAPrevious()) {
+//     zoom.value = 1;
+//     moved.value = true;
+//     (currentIndex.value as number)--;
+//     imageInvisibility.value = true;
+//   }
+// };
 
 // when modal opens make the value of currentIndex equal to the starting index
 watch(
@@ -198,10 +198,10 @@ const handleImageLoad = (event: any) => {
 const handleKeyboardEvents = (event: KeyboardEvent) => {
   if (["Escape", "Esc"].includes(event.key)) {
     handleCloseCarousel();
-  } else if (event.key === "ArrowLeft") {
-    handleMoveToPreviousItem();
-  } else if (event.key === "ArrowRight") {
-    handleMoveToNextItem();
+  // } else if (event.key === "ArrowLeft") {
+  //   handleMoveToPreviousItem();
+  // } else if (event.key === "ArrowRight") {
+  //   handleMoveToNextItem();
   } else if (event.key === "+") {
     handleIncreaseZoom();
   } else if (event.key === "-") {
@@ -245,19 +245,19 @@ onUnmounted(() => {
           class="h-full flex flex-col"
         >
           <!--toolbar-->
-          <Toolbar
+          <!-- <Toolbar
             class="absolute right-0 z-30 mr-5 mt-5"
             :is-image="Boolean(selectedAttachment.type === 'image')"
             :handle-close-carousel="handleCloseCarousel"
             :handle-increase-zoom="handleIncreaseZoom"
             :handle-decrease-zoom="handleDecreaseZoom"
-          />
+          /> -->
 
           <div
             class="relative w-full h-full flex items-center justify-center overflow-hidden"
           >
             <!--Left controls-->
-            <IconButton
+            <!-- <IconButton
               title="previous"
               aria-label="previous item"
               @click="handleMoveToPreviousItem"
@@ -265,10 +265,10 @@ onUnmounted(() => {
               class="ic-btn-contained-glass absolute top-[50%] z-30 left-0 flex items-center justify-center mr-5 ml-5 p-4"
             >
               <ChevronLeftIcon class="w-6 h-6" />
-            </IconButton>
+            </IconButton> -->
 
             <!--Image-->
-            <img
+            <!-- <img
               class="absolute w-auto md:max-w-175 xs:max-w-85 cursor-grab transition-[transform,opacity] duration-200"
               :class="{ 'opacity-0': imageInvisibility }"
               :style="{
@@ -283,10 +283,10 @@ onUnmounted(() => {
               ref="image"
               @load="handleImageLoad"
               @mousedown="handleStartMovingImage"
-            />
+            /> -->
 
             <!--Video-->
-            <VideoPlayer
+            <!-- <VideoPlayer
               class="transition-[transform,opacity] duration-200"
               :class="{ 'opacity-0': imageInvisibility }"
               :id="'video-player-' + selectedAttachment.id"
@@ -296,10 +296,10 @@ onUnmounted(() => {
               :thumbnail="<string>selectedAttachment.thumbnail"
               :key="selectedAttachment.id"
               @videoLoad="handleImageLoad"
-            />
+            /> -->
 
             <!--right controls-->
-            <IconButton
+            <!-- <IconButton
               title="next"
               aria-label="next item"
               @click="handleMoveToNextItem"
@@ -307,7 +307,7 @@ onUnmounted(() => {
               class="ic-btn-contained-glass absolute top-[50%] z-30 right-0 flex items-center justify-center p-4 ml-5 mr-5"
             >
               <ChevronRightIcon class="w-6 h-6" />
-            </IconButton>
+            </IconButton> -->
           </div>
         </div>
       </div>

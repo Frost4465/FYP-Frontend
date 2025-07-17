@@ -2,10 +2,7 @@
 import type { IContact, IConversation, IMessage } from "@src/types";
 import { computed } from "vue";
 
-import { hasAttachments } from "@src/utils";
-
 import { ArrowUturnLeftIcon } from "@heroicons/vue/24/outline";
-import MediaItem from "@src/components/shared/modals/ConversationInfoModal/SharedMediaTab/MediaItem.vue";
 import SearchInput from "@src/components/ui/inputs/SearchInput.vue";
 import NoMedia from "@src/components/states/empty-states/NoMedia.vue";
 import ScrollBox from "@src/components/ui/utils/ScrollBox.vue";
@@ -23,7 +20,7 @@ const attachmentMessages = computed(() => {
   for (let message of props.conversation.messages) {
     if (hasAttachments(message)) {
       if (props.contact) {
-        if (message.sender.id === props.contact.id) {
+        if (message.sender === props.contact.id) {
           media.push(message);
         }
       } else {
@@ -73,12 +70,12 @@ const attachmentMessages = computed(() => {
         v-for="(message, index) in attachmentMessages"
         :key="index"
       >
-        <MediaItem
+        <!-- <MediaItem
           v-for="(attachment, index) in message.attachments"
           :attachment="attachment"
           :date="message.date"
           :key="index"
-        />
+        /> -->
       </div>
 
       <NoMedia v-else vertical />

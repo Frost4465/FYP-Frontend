@@ -42,10 +42,7 @@ const router = createRouter({
   routes,
 });
 
-// (router gaurd) when navigating in mobile screen from chat to chatlist,
-// don't navigate to the previous chat navigate to the chatlist.
 router.beforeEach((to, from, next) => {
-  //console.log(window.innerWidth);
   if (from.name === "Chat" && to.name === "Chat" && window.innerWidth <= 967)
     next({ name: "No-Chat" });
   else next();

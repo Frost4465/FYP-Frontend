@@ -10,7 +10,7 @@ export interface IUser {
 }
 
 export interface IContact {
-  id: number;
+  id: string;
   userName: string;
 }
 
@@ -41,7 +41,7 @@ export interface IRecording {
 }
 
 export interface IMessage {
-  id: number;
+  id: string;
   sender: string;
   text: string;
   timestamp: string;
@@ -56,6 +56,16 @@ export interface IConversation {
   replyMessage?: IMessage;
   unread?: number;
   draftMessage: string;
+}
+
+export interface CurrentConversation {
+  id: string;
+  members: number[];
+  groupName: string;
+  text: string;
+  sender: string;
+  timestamp: string;
+  group: boolean;
 }
 
 export interface IContactGroup {
