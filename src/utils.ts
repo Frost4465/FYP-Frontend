@@ -1,7 +1,8 @@
 import useStore from "@src/store/store";
-import { CurrentConversation} from "@src/types";
+import { CurrentConversation } from "@src/types";
 import type {
   ICall,
+  IChat,
   IContact,
   IConversation,
   IMessage,
@@ -14,9 +15,15 @@ import { useRoute } from "vue-router";
  * @param contact
  * @returns A string the combines the first and last names.
  */
-export const getFullName = (contact: IContact, hyphen?: boolean) => {
+export const getFullName = (contact: IContact | IChat, hyphen?: boolean) => {
+  if ('userName' in contact) {
     return contact.userName;
+  } else if ('groupName' in contact) {
+    return contact.groupName;
+  }
+  return '';
 };
+
 
 /**
  * get the other contact that is not the authenticated user.
@@ -56,8 +63,14 @@ export const getOddContact = (conversation: CurrentConversation) => {
  * @param conversation
  * @returns String
  */
-export const getName = (conversation: IConversation , hyphen?: boolean) => {
+export const getName = (conversation: IConversation | IChat | undefined | null, hyphen?: boolean) => {
+  if (!conversation) return '';
+  if ('userName' in conversation) {
     return conversation.userName;
+  } else if ('groupName' in conversation) {
+    return conversation.groupName;
+  }
+  return '';
 };
 
 /**

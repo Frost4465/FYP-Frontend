@@ -10,7 +10,6 @@ const props = defineProps<{
   handleSelectAll: () => void;
 }>();
 
-// (event) toggle the select all checkbox
 const handleCheck = () => {
   if (props.selectAll) {
     props.handleDeselectAll();
@@ -21,7 +20,6 @@ const handleCheck = () => {
 </script>
 
 <template>
-  <!--select mode controls-->
   <div v-if="props.selectMode" class="w-full flex justify-between items-center">
     <div class="flex items-center">
       <Checkbox
@@ -35,7 +33,7 @@ const handleCheck = () => {
       </label>
     </div>
     <div class="flex items-center">
-      <Button class="ghost-danger ghost-text mr-3"> Delete </Button>
+      <Button class="ghost-danger ghost-text mr-3"> GPT Meaning </Button>
       <Button class="ghost-primary ghost-text" @click="props.handleCloseSelect">
         Cancel
       </Button>

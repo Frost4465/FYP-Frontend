@@ -13,17 +13,28 @@ const container = ref<HTMLElement | null>(null);
 onMounted(() => {
   if (container.value) container.value.scrollTop = container.value.scrollHeight;
 });
+
+
+function reformat(timestamp: string) {
+  const date = new Date(timestamp);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
 </script>
 
 <template>
   <div ref="container" class="grow px-5 py-5 flex flex-col overflow-y-scroll scrollbar-hidden">
     <div v-for="(message, index) in props.messages" :key="message.id">
-      <div
-        @click="() => props.handleSelectMessage(message.id)"
-        :class="{'bg-blue-50': props.selectedMessages.includes(message.id)}"
-      >
-        <strong>{{ message.sender }}:</strong> {{ message.text }}
-        <span class="text-xs text-gray-400">{{ message.timestamp }}</span>
+      <div @click="props.handleSelectMessage(message.id)"
+        :class="{ 'bg-blue-50': props.selectedMessages.includes(message.id) }">
+        <strong>{{ message.senderName }}:</strong> {{ message.text }}
+        <span class="text-xs text-gray-400">{{ reformat(message.timestamp) }}</span>
       </div>
     </div>
   </div>

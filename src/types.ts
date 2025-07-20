@@ -56,12 +56,20 @@ export interface IConversation {
   replyMessage?: IMessage;
   unread?: number;
   draftMessage: string;
+  members: number[];
+  isGroup: boolean;
+  groupName: string;
+  groupIcon: string;
+  text: string;
+  sender: string;
+  timestamp: string;
 }
 
 export interface MessageVo  {
   id: string;
   chatId: string;
   sender: string;
+  senderName: string;
   text: string;
   attachments: string[];
   timestamp: string;

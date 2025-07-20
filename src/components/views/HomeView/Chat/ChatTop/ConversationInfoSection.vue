@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { IConversation } from "@src/types";
-
-import { inject, ref , nextci} from "vue";
+import { inject, ref } from "vue";
 import router from "@src/router";
 import { getName } from "@src/utils";
-
+import IconButton from "@src/components/ui/inputs/IconButton.vue";
+import Dropdown from "@src/components/ui/navigation/Dropdown/Dropdown.vue";
 import {
   ChevronLeftIcon,
   EllipsisVerticalIcon,
@@ -14,8 +14,6 @@ import {
   PhoneIcon,
   ShareIcon,
 } from "@heroicons/vue/24/outline";
-import IconButton from "@src/components/ui/inputs/IconButton.vue";
-import Dropdown from "@src/components/ui/navigation/Dropdown/Dropdown.vue";
 
 const props = defineProps<{
   handleOpenInfo: () => void;
@@ -27,17 +25,14 @@ const activeConversation = <IConversation>inject("activeConversation");
 
 const showDropdown = ref(false);
 
-// (event) close dropdown menu when click item
 const handleCloseDropdown = async () => {
   showDropdown.value = false;
-  router.push('/access/sign-in/');
+  // router.push('/access/sign-in/');
 };
 
-// (event) close dropdown menu when clicking outside the menu.
 const handleClickOutside = (event: Event) => {
   let target = event.target as HTMLElement;
   let parentElement = target.parentElement as HTMLElement;
-
   if (
     target &&
     !(target.classList as Element["classList"]).contains("open-top-menu") &&
@@ -48,74 +43,36 @@ const handleClickOutside = (event: Event) => {
   }
 };
 
-// (event) navigate to the /chat/ url
 const handleCloseConversation = () => {
   router.push({ path: "/chat/" });
 };
-
-// (event) open the voice call modal and expand call
-// const handleOpenVoiceCallModal = () => {
-//   store.activeCall = activeCall;
-//   store.callMinimized = false;
-
-//   // wait for the transition to ongoing status to end
-//   setTimeout(() => {
-//     store.openVoiceCall = true;
-//   }, 300);
-// };
 </script>
 
 <template>
-  <!--conversation info-->
-  <div class="w-full flex justify-center items-center">
+  <div class="w-full flex items-center justify-between">
     <div class="group mr-4 md:hidden">
       <IconButton class="ic-btn-ghost-primary w-7 h-7" @click="handleCloseConversation" title="close conversation"
         aria-label="close conversation">
         <ChevronLeftIcon class="w-[1.25rem] h-[1.25rem]" />
       </IconButton>
     </div>
-
-    <div v-if="status !== 'loading'" class="flex grow">
-      <!--avatar-->
-      <button class="mr-5 outline-none" @click="props.handleOpenInfo" aria-label="profile avatar">
-        <!-- <div
-          :style="{
-            backgroundImage: `url(${getAvatar(activeConversation)})`,
-          }"
-          class="w-[2.25rem] h-[2.25rem] rounded-full bg-cover bg-center"
-        ></div> -->
-      </button>
-
-      <!--name and last seen-->
-      <div class="flex flex-col">
-        <p class="w-fit heading-2 text-black/70 dark:text-white/70 mb-2 cursor-pointer" @click="props.handleOpenInfo"
-          tabindex="0">
-          {{ getName(activeConversation) }}
-        </p>
-
-        <p class="body-2 text-black/70 dark:text-white/70 font-extralight rounded-[.25rem]" tabindex="0"
-          aria-label="Last seen december 16, 2019">
-          Last seen Dec 16, 2019
-        </p>
-      </div>
+    <div v-if="status !== 'loading'" class="flex-1 flex items-center">
+      <button class="mr-5 outline-none" @click="props.handleOpenInfo" aria-label="profile avatar"></button>
+      <p class="whitespace-nowrap text-xl font-semibold m-0">
+        {{ getName(activeConversation).replace(/\s+/g, ' ') }}
+      </p>
     </div>
-
-    <div class="flex" :class="{ hidden: status === 'loading' }">
-      <!--search button-->
+    <div class="flex items-center" :class="{ hidden: status === 'loading' }">
       <IconButton title="search messages" aria-label="search messages" @click="props.handleOpenSearch"
         class="ic-btn-ghost-primary w-7 h-7 mr-3">
         <MagnifyingGlassIcon class="w-[1.25rem] h-[1.25rem] text-gray-400 group-hover:text-indigo-300" />
       </IconButton>
-
       <div class="relative">
-        <!--dropdown menu button-->
         <IconButton id="open-conversation-menu" class="ic-btn-ghost-primary open-top-menu group w-7 h-7"
           @click="showDropdown = !showDropdown" :aria-expanded="showDropdown" tabindex="0"
           aria-controls="conversation-menu" title="toggle conversation menu" aria-label="toggle conversation menu">
           <EllipsisVerticalIcon class="open-top-menu w-[1.25rem] h-[1.25rem]" />
         </IconButton>
-
-        <!--dropdown menu-->
         <Dropdown id="conversation-menu" :close-dropdown="() => (showDropdown = false)" :show="showDropdown"
           :position="['right-0']" :handle-click-outside="handleClickOutside" aria-labelledby="open-conversation-menu">
           <button class="dropdown-link dropdown-link-primary" aria-label="Show profile information" role="menuitem"
@@ -129,12 +86,7 @@ const handleCloseConversation = () => {
             Profile Information
           </button>
           <button class="dropdown-link dropdown-link-primary" aria-label="start a voice call with this contact"
-            role="menuitem" @click="
-              () => {
-                handleCloseDropdown();
-                // handleOpenVoiceCallModal();
-              }
-            ">
+            role="menuitem" @click="handleCloseDropdown">
             <PhoneIcon class="h-5 w-5 mr-3 text-black opacity-60 dark:text-white dark:opacity-70" />
             Voice call
           </button>
