@@ -31,8 +31,10 @@ function reformat(timestamp: string) {
 <template>
   <div ref="container" class="grow px-5 py-5 flex flex-col overflow-y-scroll scrollbar-hidden">
     <div v-for="(message, index) in props.messages" :key="message.id">
-      <div @click="props.handleSelectMessage(message.id)"
-        :class="{ 'bg-blue-50': props.selectedMessages.includes(message.id) }">
+      <div
+        @click="props.handleSelectMessage(message.text)"
+        :class="{ 'bg-blue-50': props.selectedMessages.includes(message.text) }"
+      >
         <strong>{{ message.senderName }}:</strong> {{ message.text }}
         <span class="text-xs text-gray-400">{{ reformat(message.timestamp) }}</span>
       </div>

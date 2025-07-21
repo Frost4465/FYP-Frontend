@@ -13,6 +13,7 @@ const props = defineProps<{
   handleCloseSelect: () => void;
   conversationName: string;
   conversation: IConversation | null;
+  selectedMessages: string[];
 }>();
 
 const openSearch = ref(false);
@@ -35,6 +36,7 @@ const handleOpenInfo = () => { openInfo.value = true; };
         :handle-close-select="props.handleCloseSelect"
         :handle-select-all="props.handleSelectAll"
         :handle-deselect-all="props.handleDeselectAll"
+        :selected-messages="props.selectedMessages"
       />
       <!-- Conversation Info Section -->
       <ConversationInfoSection

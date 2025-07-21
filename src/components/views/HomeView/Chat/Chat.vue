@@ -128,13 +128,9 @@ const conversationName = computed(() =>
 );
 
 const handleSelectMessage = (messageId: string) => {
-  if (!selectedMessages.value.includes(messageId)) {
-    selectedMessages.value.push(messageId);
-  }
-  if (messages.value.length && selectedMessages.value.length === messages.value.length) {
-    selectAll.value = true;
-  }
+  selectedMessages.value = [messageId];
   if (!selectMode.value) selectMode.value = true;
+  selectAll.value = false;
 };
 
 const handleDeselectMessage = (messageId: string) => {
@@ -174,6 +170,7 @@ const handleCloseSelect = () => {
       :handle-close-select="handleCloseSelect"
       :conversation-name="conversationName"
       :conversation="conversation"
+      :selected-messages="selectedMessages"
     />
     <template v-if="messages.length === 0">
       <div class="flex-1 flex flex-col items-center justify-center text-gray-400">
